@@ -1,0 +1,30 @@
+
+<SCRIPT LANGUAGE=VBScript RUNAT=Server>
+sub Session_OnStart
+	dim Obj
+
+	'设置数据库连接文件名
+	if Application("ConnectionString") = "" then
+		'在事件Application_OnStart中不能使用Request.ServerVariables，所以放在此处取得udl路径
+		Application.Lock
+		Application("ConnectionString") = "File Name="& Request.ServerVariables("APPL_PHYSICAL_PATH") &"DB.udl"
+		
+
+		'检测数据库连接文件，系统使用 Microsoft Data Link 文件(DB.udl)记录数据库连接配置
+		if IsEmpty(Application("ServerError")) then
+			Application("ServerError") = true
+			set Obj = new DetectUdl
+			
+			Obj.FileName = Request.ServerVariables("APPL_PHYSICAL_PATH") &"DB.udl"
+			Obj.Detect()
+			if Obj.ErrCount = 0 then
+				Application.Contents.remove("ServerError")
+			end if
+
+			set Obj = nothing
+		end if
+		Application.UnLock
+	end if	
+end sub
+</SCRIPT>
+<!-- #include file = "secret/Detect.asp" -->
