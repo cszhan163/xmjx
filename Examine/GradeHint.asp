@@ -51,7 +51,7 @@
 		"left join ExamineItem EI on EI.ExamineId=E.ExamineId "&_
 		"left join ExaEmpTab ET on (ET.ExaItemId=EI.ExaItemId and ET.ExaEmpCode='"&userId&"') "&_
 		"where 1=1 "&Query&" and (E.GradeState=2 or E.GradeState=3) and ET.state<>4 "&_
-		"and ET.ExaEmpCode<>'' group by E.ExamineId,ET.ExaEmpCode ",G_DBConn,1,1,1	
+		"and ET.ExaEmpCode<>'' group by E.ExamineId,ET.ExaEmpCode ",G_DBConn,1,1,1
 	do while not rsTemp.eof
 	RowIndex=RowIndex+1
 		ExamineId=rsTemp("ExamineId")
@@ -68,7 +68,7 @@
 		EmpNameChs=""
 		GroupName=""
 		select case ExaObjType
-		case "1" 
+		case "1"
 			rsMain.open "select CorpNameChs from CorpInfo where CorpCode='"&ExaObjCode&"'",G_DBConn,1,1,1
 			if not rsMain.eof then
 				CorpNameChs=rsMain("CorpNameChs")
@@ -107,7 +107,7 @@
 				else
 					strGroupName=strGroupName&"<br>"&GroupName
 				end if
-				rsMain.movenext	
+				rsMain.movenext
 			loop
 			rsMain.close
 	end select
@@ -122,7 +122,7 @@
 		"left join Examine E on E.ExamineId=EI.ExamineId "&_
 		"where EE.ExaEmpCode='"&CurEmpCode&"' and E.ExamineId="&ExamineId&"",G_DBConn,1,1,1
 	strExaFactorName=""
-	do while not rsMain.eof 
+	do while not rsMain.eof
 		ExaFactorName=rsMain("ExaFactorName")
 		if strExaFactorName="" then
 			strExaFactorName=ExaFactorName

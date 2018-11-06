@@ -44,7 +44,7 @@
 	loop
 	rsMain.close
 %>
-	  </select> 
+	  </select>
 	  <select name="SelBOPId" onChange="Form1.submit()">
 		<option value="">Ñ¡ÔñÆÚ¼ä</option>
 <%
@@ -283,7 +283,7 @@
 		EmpNameChs=""
 		GroupName=""
 		select case ExaObjType
-		case "1" 
+		case "1"
 			rsMain.open "select CorpNameChs from CorpInfo where CorpCode='"&ExaObjCode&"'",G_DBConn,1,1,1
 			if not rsMain.eof then
 				CorpNameChs=rsMain("CorpNameChs")
@@ -322,7 +322,7 @@
 				else
 					strGroupName=strGroupName&"<br>"&GroupName
 				end if
-				rsMain.movenext	
+				rsMain.movenext
 			loop
 			rsMain.close
 	end select
@@ -337,7 +337,7 @@
 		"left join Examine E on E.ExamineId=EI.ExamineId "&_
 		"where EE.ExaEmpCode='"&CurEmpCode&"' and E.ExamineId="&ExamineId&"",G_DBConn,1,1,1
 	strExaFactorName=""
-	do while not rsMain.eof 
+	do while not rsMain.eof
 		ExaFactorName=rsMain("ExaFactorName")
 		if strExaFactorName="" then
 			strExaFactorName=ExaFactorName

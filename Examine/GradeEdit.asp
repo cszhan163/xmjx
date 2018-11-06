@@ -22,12 +22,12 @@
 	set rsMain=Server.CreateObject("ADODB.Recordset")
 	set rsTemp=Server.CreateObject("ADODB.Recordset")
 	set rsMarks=Server.CreateObject("ADODB.Recordset")
-	
+
 	if Submits=" 返回 " then
 		response.Redirect("GradeList.asp")
 		response.End()
 	end if
-	
+
 	if Submits=" 保存 " then
 		Rows=request("ALLExaItemId").count
 		for i=1 to Rows
@@ -61,7 +61,7 @@
 			rsTemp.close
 		next
 	end if
-	
+
 	if IsSubmit="Ok" then
 		G_DBConn.execute("update ExaEmpTab set State=4 where ExaEmpCode='"&ExaEmpCode&"' and "&_
 			"ExaItemId in (select ExaItemId from ExamineItem where ExamineId="&ExamineId&")")
@@ -76,17 +76,17 @@
 			G_DBConn.execute("update Examine set GradeState=3,LastDate=getdate() where ExamineId="&ExamineId&"")
 		end if
 	end if
-	
+
 	if Submits="申请退回" then
 		G_DBConn.execute("update ExaEmpTab set State=2 where ExaEmpCode='"&ExaEmpCode&"' and "&_
 			"ExaItemId in (select ExaItemId from ExamineItem where ExamineId="&ExamineId&")")
 	end if
-	
+
 	if Submits=" 退回 " then
 		G_DBConn.execute("update ExaEmpTab set State=3 where ExaEmpCode='"&ExaEmpCode&"' and "&_
 			"ExaItemId in (select ExaItemId from ExamineItem where ExamineId="&ExamineId&")")
 	end if
-	
+
 	'if Submits=" 确定 " then
 '		G_DBConn.execute("update ExaEmpTab set State=4 where ExaEmpCode='"&ExaEmpCode&"' and "&_
 '			"ExaItemId in (select ExaItemId from ExamineItem where ExamineId="&ExamineId&")")
@@ -120,7 +120,7 @@
 	end if
 	rsMain.close
 	select case ExaObjType
-		case "1" 
+		case "1"
 			rsMain.open "select CorpNameChs from CorpInfo where CorpCode='"&ExaObjCode&"'",G_DBConn,1,1,1
 			if not rsMain.eof then
 				CorpNameChs=rsMain("CorpNameChs")
@@ -156,18 +156,18 @@
 				"where E.EmpCode='"&EmpCode&"'",G_DBConn,1,1,1
 			do while not rsMain.eof
 				GroupName=GroupName&"<br>"&rsMain("GroupName")
-				rsMain.movenext	
+				rsMain.movenext
 			loop
 			rsMain.close
 	end select
-	
+
 	rsMain.open "select State from ExaEmpTab where ExaEmpCode='"&ExaEmpCode&"' and "&_
 		"ExaItemId in (select ExaItemId from ExamineItem where ExamineId='"&ExamineId&"')",G_DBConn,1,1,1
 	if not rsMain.eof then
 		ExaGradeState=rsMain("State")
 	end if
 	rsMain.close
-	
+
 	if ExaGradeState<>0 and ExaGradeState<>3 then
 		BtnSave="disabled"
 	end if
@@ -178,7 +178,7 @@
 		BtnOk="disabled"
 	end if
 	if ExaGradeState<>1 and  ExaGradeState<>2 then
-		BtnBack="disabled"	
+		BtnBack="disabled"
 	end if
 %>
 <body>
@@ -267,15 +267,15 @@
     </tr>
     <tr bgcolor="#FFFFFF">
       <td colspan="1" align="center">
-	  <%if IsRepeat="True" then 
-	  		response.Write("是") 
+	  <%if IsRepeat="True" then
+	  		response.Write("是")
 		else
 			response.Write("否")
 		end if%>
 	  </td>
       <td align="center">
-	   <%if MarksType="True" then 
-	  		response.Write("数值") 
+	   <%if MarksType="True" then
+	  		response.Write("数值")
 		else
 			response.Write("区间")
 		end if%>
@@ -292,11 +292,11 @@
 		Num=rsTemp.recordcount
 		if not rsTemp.eof then
 		if (Num mod 5)<>0 then
-			Rows=cdbl(Num)/5+1 
+			Rows=cdbl(Num)/5+1
 		else
 			Rows=cdbl(Num)/5
 		end if
-		for i=0 to Rows-1 
+		for i=0 to Rows-1
 	%>
             <tr align="center">
               <%
@@ -318,7 +318,7 @@
 	%>
             </tr>
             <%
-			
+
 		next
 		end if
 		rsTemp.close
@@ -337,7 +337,7 @@
 	rsTemp.open "select EE.*,E.EmpNameChs from ExaEmpTab EE "&_
 		"left join Employee E on (E.EmpCode=EE.ExaEmpCode) "&_
 		"where ExaItemId="&ExaItemId&" and EE.ExaEmpCode='"&ExaEmpCode&"'",G_DBConn,1,1,1
-	do while not rsTemp.eof	
+	do while not rsTemp.eof
 	EmpNameChs=rsTemp("EmpNameChs")
 	Weighing=rsTemp("Weighing")
 	Marks=rsTemp("Marks")

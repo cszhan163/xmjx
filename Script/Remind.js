@@ -10,22 +10,66 @@ function Reminder(CheckFile, ShowFile)
 	this.CheckRemind = CheckRemind;
 }
 
+function doXMLload(aXMLFileName,callback){
+	var isLoaded = false;
+	try{
+	  if (window.ActiveXObject){
+	    xmlDoc= new ActiveXObject("Microsoft.XMLDOM");
+	    xmlDoc.async = false;
+	    isLoaded = xmlDoc.load(aXMLFileName);
+		 isLoaded = true;
+	  }
+	  else if
+	     (document.implementation&& document.implementation.createDocument){
+	        try{
+	            xmlDoc = document.implementation.createDocument('', '', null);
+	            xmlDoc.async = false;
+	            xmlDoc.load(aXMLFileName);
+	        } catch(e){
+
+	            var xmlhttp = new window.XMLHttpRequest();
+	            xmlhttp.open("GET",aXMLFileName,false);
+	            xmlhttp.send(null);
+	            xmlDoc = xmlhttp.responseXML;
+	        }
+			isLoaded = true;
+	  }
+	  else{
+		  isLoaded = false;
+	  	  alert("load data error");
+	  }
+	  }
+	  catch(e){
+	  	alert(e.message);
+		isLoaded = false;
+	  }
+	  if(callback){
+		  callback(isLoaded)
+	  }
+	  return  xmlDoc;
+}
+
 //-------------------------------------------------------------------------------------------------------------------------
 //	在客户端向服务器发送请求，检测新提醒
 //-------------------------------------------------------------------------------------------------------------------------
 function CheckRemind()
 {
-	var Dom = new ActiveXObject("MSXML2.DOMDocument");
+	//var Dom = domGenerate();//new ActiveXObject("MSXML2.DOMDocument");
 	var Href = window.location.href;
 	var CheckDate = new Date();
-	var bLoadXml;
-	
+	var bLoadXml = false;
+	//alert(Href)
+	//alert(Dom)
+
 	//向服务器检测提醒的文件发送请求,发送客户端时间
 //		debugger;
-	Dom.async = false;
+	//Dom.async = false;
 //	alert("CheckDate: "+ CheckDate);
 //	alert(Href.substring(0, Href.lastIndexOf("/") + 1) + this.CheckFile +"?IsFirst="+ this.IsFirst +"&CheckDate="+ GetReqDate(CheckDate));
-	bLoadXml = Dom.load(Href.substring(0, Href.lastIndexOf("/") + 1) + this.CheckFile +"?IsFirst="+ this.IsFirst +"&CheckDate="+ GetReqDate(CheckDate));
+	var xmlPath = Href.substring(0, Href.lastIndexOf("/") + 1) + this.CheckFile +"?IsFirst="+ this.IsFirst +"&CheckDate="+ GetReqDate(CheckDate);
+	var Dom = doXMLload(xmlPath,function(isLoaded){
+		bLoadXml = isLoaded;
+	});//Dom.load();
 //	alert(bLoadXml +"\n"+ Dom.xml)
 	if (!bLoadXml)
 	{
@@ -90,9 +134,9 @@ function GetReqDate(CheckDate)
 {
 	var Str = new String("00");
 	var rtStr;		//取得当前时间
-	
+
 	rtStr = CheckDate.getFullYear().toString();
-	
+
 	rtStr = rtStr +"/"+ Str.substr(0, 2 - (CheckDate.getMonth() + 1).toString().length) + (CheckDate.getMonth() + 1).toString();
 	rtStr = rtStr +"/"+ Str.substr(0, 2 - CheckDate.getDate().toString().length) + CheckDate.getDate().toString();
 	rtStr = rtStr +" "+ CheckDate.getHours() +":"+ CheckDate.getMinutes() +":"+ CheckDate.getSeconds();
@@ -141,7 +185,7 @@ function GetDelayTime(DelayTime)
 			}
 		}
 	}
-	
+
 	return rt;
 }
 
@@ -190,7 +234,7 @@ function GetExpiredNum(List, col)
 	var HrMilli = MinMilli * 60;
 	var DayMilli = HrMilli * 24;
 	var WeekMilli = DayMilli * 7;
-	
+
 	for (var i = 0; i < aRemindDate.length; i++)
 	{
 
@@ -226,6 +270,6 @@ function GetExpiredNum(List, col)
 			}
 		}
 	}
-	
+
 	window.setTimeout(Function("GetExpiredNum("+ List.id +", "+ col +")"), (60 - CurTime.getSeconds()) * 1000);
 }

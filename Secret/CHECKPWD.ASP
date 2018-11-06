@@ -1,7 +1,7 @@
 <!--#include file = "crypt.asp"-->
 <!--#include file = "CheckPwdHandler.asp"-->
 <%
-	Response.Expires = -1					
+	Response.Expires = -1
 	Response.ExpiresAbsolute = Now() -1
 	Response.cachecontrol = "no-cache"
 
@@ -9,7 +9,7 @@
 g_LinesPerPage = 0
 g_DecimalDigits = 2
 
-YDay = 0	'说明：凯路计算预收汇日期的方法：付款条件内的X天 + YDay(天) + 提单日期 
+YDay = 0	'说明：凯路计算预收汇日期的方法：付款条件内的X天 + YDay(天) + 提单日期
 
 '通用函数
 '函数说明
@@ -327,7 +327,8 @@ End Function
 '程序
 svrName=Request.ServerVariables("SERVER_NAME")
 Set g_DBConn = Server.CreateObject("ADODB.Connection")
-g_DBConn.Open Application("ConnectionString")
+'g_DBConn.Open Application("ConnectionString")
+g_DBConn.Open "provider=sqloledb;data source=.;uid=kuben;pwd=Aa1234!@#$;database=xmjx"
 FromUrl=Request.ServerVariables("LOCAL_ADDR")
 If FromUrl="192.168.6.201" Then
 	'=====国外用户
@@ -338,7 +339,7 @@ If FromUrl="192.168.6.201" Then
 		If Session("SignInName")="" Then
 			Response.Redirect("../index.asp")
 			Response.End()
-		End If	
+		End If
 	Else
 			Set RSTemp=g_DBConn.Execute("Select CustCode,CustId From Customer Where SignInName='"&SignInName&"' And SignInPw='"&SignInPw&"' And SignInConPw='"&SignInConPw&"'")
 			If RSTemp.Eof Then
@@ -354,7 +355,7 @@ If FromUrl="192.168.6.201" Then
 				response.write "</table>"
 				response.write "</div>"
 				response.write "</body>"
-	
+
 				RSTemp.Close
 				Response.end
 			Else
@@ -366,7 +367,7 @@ If FromUrl="192.168.6.201" Then
 			Set RSTemp=Nothing
 	End If
 SignInCustId=Session("SignInCustId")
-SignInCustCode=Session("SignInCustCode")		
+SignInCustCode=Session("SignInCustCode")
 Else
 	'=====国内用户
     UserName=Trim(Request("name"))
@@ -374,27 +375,27 @@ Else
     if UserName="" or Password="" then
 		if Session("UserId")="" then
 %>
-<head> 
-<meta http-equiv="windows-Target" contect="_top"> 
+<head>
+<meta http-equiv="windows-Target" contect="_top">
 <meta http-equiv="content-type" content="text/html; charset=gb2312">
-<SCRIPT LANGUAGE="JavaScript"> 
-if (top.frames.length!=0) 
+<SCRIPT LANGUAGE="JavaScript">
+if (top.frames.length!=0)
 	if (window.name == "topFrame")		//如果页面显示在顶部的窗口内(TopManu.asp)，将于Default.asp在同一文件夹内
 	{
 		top.location = "Default.asp"
 	}
 	else
 	{
-		top.location="../Default.asp"; 
+		top.location="../Default.asp";
 	}
 else
 	document.location="../Default.asp";
-</SCRIPT> 
-</head> 
+</SCRIPT>
+</head>
 <%
 			'response.redirect "/default.asp"
    			Response.end
-		end if 
+		end if
   	else
 		Set RSVian = g_DBConn.Execute("SELECT EmpId, EmpCode,Grade,DeptCode FROM employee WHERE EmpCode='"&UserName&"' AND PassWord='"&md5(Password)&"'")
 		if RSVian.eof then
@@ -430,7 +431,7 @@ else
 		'Session("AffairType")="UNITE"
 		'Session("AffairType")="METAL"
 		Session("AffairType")="CHEM"
-		
+
 		AffairType=Session("AffairType")
 '=======================================
 
@@ -439,14 +440,14 @@ UserID=Session("UserID")
 UDept=Session("UserDept")
 UGrade=Session("UserGrade")
 End If
-	
+
 	'判断使用权限
 	Set gRS = Server.CreateObject("ADODB.Recordset")
 '==============================================================================================================================
 '	计算当前页使用的模块代码
 '==============================================================================================================================
 	call GetModuleCode()
-	
+
 '==============================================================================================================================
 '	判断使用权限
 '==============================================================================================================================
@@ -478,7 +479,7 @@ End If
 		gRS.Close
 	end if
 	set gRS = nothing
-	
+
 	'错误信息函数
 	function ErrMsg(Msg)
 		Response.Write "<body onclick='history.back()'>"
@@ -541,21 +542,21 @@ End If
 			RSVian.Close
 		Set RSVian=Nothing
 	End Function
-	
+
 
 	sub GetModuleCode()
 		'当请求可位于两个以上模块的页面时，需传递模块参数 表Sys_Module中ModuleCode（如:ModuleCode=AB）
 		if Request("ModuleCode") <> "" then
 			Session("ModuleCode") = Request("ModuleCode")		'接收并保存模块代码
 		end if
-	
+
 		'如果页面内的 ModuleCode 不确定(包含*号),根据 Session("ModuleCode") 内的值计算出当前所需的模块代码
 		i = Instr(1, ModuleCode, "*", 1)
 		do while i > 0
 			ModuleCode = Replace(ModuleCode, "*", Mid(Session("ModuleCode"), i, 1), 1, 1, 1)
 			i = Instr(1, ModuleCode, "*", 1)
 		loop
-	
+
 		'最后更新 Session("ModuleCode") 为最新的当前页使用的模块代码,如果模块代码大于两位,不包括最后两位数字
 		if ModuleCode <> "" then
 			if Len(ModuleCode) > 2 then				'if ModuleCode = "AA01" then Session("ModuleCode") = "AA"
@@ -584,20 +585,20 @@ end function
 
 
 '================================================================================================================================
-'	计算金额(包括多币别)的和(Sort = "Add")或差值(Sort = "Sub")	( "USD10 + RMB100" +|- "USD5 + EUR20" ), 
+'	计算金额(包括多币别)的和(Sort = "Add")或差值(Sort = "Sub")	( "USD10 + RMB100" +|- "USD5 + EUR20" ),
 '================================================================================================================================
 function ComputeAmt(Amt1, Amt2, Delimiter, Sort)
 	dim arrAmt1,arrAmt2,Der, ZeroCurr, Sign
 	dim A1,A2, subed, NegativeDelimiter, arrTemp, strTemp, IsAddDelimiter
-	
+
 	if Sort = "+" then Sort = "Add"
 	if Sort = "-" then Sort = "Sub"
-	
-	'记录分隔符是否包含 + 
+
+	'记录分隔符是否包含 +
 	if InStr(1, Delimiter, "+", 1) > 0 then
 		IsAddDelimiter = true
 	end if
-	
+
 	'如果用加号作分隔符,如(USD10.00 + JPY20.00 - RMB5.00)负数的符号可能替换分隔符中的加号，以负号为分隔符取得其中的负数
 	if IsAddDelimiter then
 		arrAmt1 = SplitAmt(Amt1, Delimiter)
@@ -615,7 +616,7 @@ function ComputeAmt(Amt1, Amt2, Delimiter, Sort)
 			VA1 = CCur(A1)		'取得金额中的数字值
 			Amt1ExistNoCur = true
 		else
-			CA1 = Left(A1, 3)	
+			CA1 = Left(A1, 3)
 			VA1 = CCur(Right(A1, len(A1) - 3))
 		end if
 
@@ -634,7 +635,7 @@ function ComputeAmt(Amt1, Amt2, Delimiter, Sort)
 					ComputeAmt = ComputeAmt & MakeAmt(IsAddDelimiter, Der, CA1, VA1 + VA2)
 				else
 					'做减法时,如果一个币别的结果为0,不输出此币别
-					if VA1 - VA2 <> 0 then 
+					if VA1 - VA2 <> 0 then
 						ComputeAmt = ComputeAmt & MakeAmt(IsAddDelimiter, Der, CA2, VA1 - VA2)
 					else
 						ZeroCurr = ZeroCurr &"<"& CA1 &">"		'记录相减后金额为0的币别
@@ -642,27 +643,27 @@ function ComputeAmt(Amt1, Amt2, Delimiter, Sort)
 				end if
 				subed = 1		'已经输出了此币别的金额
 				Exit for
-			end if			
+			end if
 		next
 
 		'如没有则输出金额Amt1中的数量
 		if subed <> 1 then
 			ComputeAmt = ComputeAmt & MakeAmt(IsAddDelimiter, Der, CA1, VA1)
 		end if
-		
+
 		subed = 0
 		if ComputeAmt <> "" then
 			Der = Delimiter				'间隔符
 		end if
 	next
-	
+
 	'输出币别只在金额Amt2中的数量
 	if Sort = "Sub" then
 		Sign = -1
 	else
 		Sign = 1
 	end if
-	
+
 	for each A2 in arrAmt2
 		if IsNumeric(A2) then
 			CA2 = ""
@@ -727,7 +728,7 @@ function SeeEmpEx(EmpCode, Sort, UseEmpCode, UseModuleCode)
 		EY = RS(EmpY)
 		EN = RS(EmpN)
 	end if
-	RS.Close 
+	RS.Close
 
 	'当前用户所在组对当前模块的所有数据权限
 	RS.Open "SELECT REPLACE( (CASE WHEN ISNULL(R."& EmpY &", '') = ',' THEN '' ELSE ISNULL(R."& EmpY &", '') END), '_Self', '"& UseEmpCode &"') "& EmpY &", "&_
@@ -753,7 +754,7 @@ function SeeEmpEx(EmpCode, Sort, UseEmpCode, UseModuleCode)
 		RS.MoveNext
 	loop
 	RS.Close
-	
+
 	'取得最终效有效的数据权限
 	if EN <> "" then
 		EGN = Split(EN, ",", -1, 1)
@@ -767,7 +768,7 @@ function SeeEmpEx(EmpCode, Sort, UseEmpCode, UseModuleCode)
 	if EY <> "" then
 		EY = Left(EY, Len(EY) -1)			'当EY 有值时,去处最右侧的","
 	end if
-	
+
 	if Sort = "Sel" then		'判断能否查看时,返回用于SQL(WHERE后)的限制条件(True | False)
 		if EY <> "" then
 			'为职员代码加入单引号 "02,04,06" -> "'02','04','06'"
@@ -802,7 +803,7 @@ end function
 
 
 '================================================================================================================================
-'	筛选用户可以查看的客户(返回SQL串)	数据客户ID字段名(CustCode),  判断类型(Sort):"Sel" | "Edi" 
+'	筛选用户可以查看的客户(返回SQL串)	数据客户ID字段名(CustCode),  判断类型(Sort):"Sel" | "Edi"
 '	CustCode: 客户ID字段名
 '	要检测的用户代码(UseEmpCode), 要检测的模块代码(UseModuleCode)
 '================================================================================================================================
@@ -876,20 +877,20 @@ end function
 
 '================================================================================================================================
 '	生成判断保存,删除操作能否执行的函数体	职员代码(EmpCode):数据的EmpCode，
-'	IE中客户Id的选择框或客户名框名称(CustId):"<select name='CustId'...|<input type="text" name='CustId'"， 
+'	IE中客户Id的选择框或客户名框名称(CustId):"<select name='CustId'...|<input type="text" name='CustId'"，
 '	操作类型(Sort):"Edi|Del|Chk"
 '================================================================================================================================
 function CanOper(EmpCode, CustId, CustState, Sort)
 	set RS = Server.CreateObject("ADODB.Recordset")
 	if EmpCode = "" and (CustId = "" or CustState = "") then
-		stop		'参数无效 EmpCode, 或 CustId,CustState 必须一个有效	
+		stop		'参数无效 EmpCode, 或 CustId,CustState 必须一个有效
 	end if
 	RS.Open "SELECT EmpNameChs FROM Employee WHERE EmpCode = '"& EmpCode &"'", G_DBConn, 0, 1, 1
 	if not RS.EOF then
 		EmpName = RS("EmpNameChs")
 	end if
 	RS.Close
-	
+
 	select case Sort
 		case "Edi"
 			NoEmpMsg = "修改"
@@ -901,7 +902,7 @@ function CanOper(EmpCode, CustId, CustState, Sort)
 
 	'在客户端脚本中得到操作名称的字符串
 	OperName = "window.event.srcElement.value"
-	
+
 	'判断对用户是否有操作的权限,返回用于SCRIPT中的 VBS
 	if EmpCode <> "" then
 		if not SeeEmp(EmpCode, Sort) then
@@ -909,11 +910,11 @@ function CanOper(EmpCode, CustId, CustState, Sort)
 					  " "& OperName &" &""操作被取消。"", vbOKOnly & vbCritical, ""提示"": "&_
 					  "window.event.returnValue = false "& vbCrLf &" exit sub"& vbCrLf
 			exit function
-		else 
+		else
 '			CanOper = "window.event.returnValue = true "	2007.11.23
 		end if
 	end if
-	
+
 	'判断对客户是否有操作的权限,返回用于SCRIPT中的 VBS, CustId为客户选择框或客户名文本框
 	if CustId <> "" and CustState <> "" then
 		CanOper = "if "& CustState &".value = ""False"" then "& vbCrLf &_
@@ -924,13 +925,13 @@ function CanOper(EmpCode, CustId, CustState, Sort)
 				  "	end if "& vbCrLf &_
 				  "	MsgBox ""您没有使用客户 """"""& CustName &"""""" 的权限！""& vbCrLf & vbCrLf & "&_
 				  " "& OperName &" &""操作被取消。"", vbOKOnly & vbCritical, ""提示"""& vbCrLf &_
-				  "	window.event.returnValue = false "& vbCrLf &" exit sub"& vbCrLf &_				  
+				  "	window.event.returnValue = false "& vbCrLf &" exit sub"& vbCrLf &_
 				  "end if"
 '				  "Else "& vbCrLf &_			2007.11.23
 '				  "window.event.returnValue = True"& vbCrLf &_
 
 	end if
-	
+
 	set RS = nothing
 end function
 
@@ -954,7 +955,7 @@ function SetIsCredit(Id)
 		IsCredit = 0
 	end if
 	RS.Close
-	
+
 	G_DBConn.Execute "UPDATE Contract SET IsCredit = "& IsCredit &" WHERE ContractId = '"& Id &"'"
 	set RS = nothing
 end function
@@ -989,7 +990,7 @@ function GetNewId()
 	else
 		stop
 	end if
-	RS.Close 
+	RS.Close
 	SET RS = NOTHING
 end function
 
@@ -999,7 +1000,7 @@ end function
 function CurSelValue(Name)
 	CurPageName = GetReqPageName()
 	ReqName = Request(Name)
-	
+
 	if IsEmpty(ReqName) then
 		CurSelValue = Request.Cookies(CurPageName)(Name)
 	else
@@ -1021,7 +1022,7 @@ function ValidateHad(Value, CurId, Table, Field, CurIdField)
 		ValidateHad = Value
 	end if
 	RS.Close
-	
+
 	set RS = nothing
 end function
 
